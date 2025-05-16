@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
+const transporter = require("../config/nodemailer");
 
 exports.register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -25,6 +26,15 @@ exports.register = async (req, res) => {
       expiresIn: "1d",
     });
 
+    // Sending welcome email
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: email,
+      subject: "Welcome to MERN Application with Authentication",
+      text: `Hi ${name},\n\nWelcome to our MERN Application with Authentication! Your account has been successfully created.\n\nBest regards,\nMERN Application with Authentication Team`,
+    };
+    await transporter.sendMail(mailOptions);
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -33,7 +43,13 @@ exports.register = async (req, res) => {
     });
     res.status(201).json({ status: "Success", data: user });
   } catch (error) {
-    res.status(500).json({ status: "Failed", message: error.message });
+    if (error.code === 11000) {
+      return res
+        .status(400)
+        .json({ status: "Failed", message: "Email already exists" });
+    }
+
+    res.status(500).json({ status: "Failed", error });
   }
 };
 
