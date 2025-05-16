@@ -66,13 +66,16 @@ exports.login = async (req, res) => {
       expiresIn: "1d",
     });
 
+    const userObj = user.toObject();
+    delete userObj.password;
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       maxAge: 24 * 60 * 60 * 1000,
     });
-    res.status(200).json({ status: "Success", data: user });
+    res.status(200).json({ status: "Success", data: userObj });
   } catch (error) {
     res.status(500).json({ status: "Failed", message: error.message });
   }
