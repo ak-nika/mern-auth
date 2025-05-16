@@ -206,3 +206,113 @@ exports.verifyEmail = async (req, res) => {
     res.status(500).json({ status: "Failed", message: error.message });
   }
 };
+
+// Check if user is authenticated
+exports.isAuthenticated = async (req, res) => {
+  try {
+    res.status(200).json({ status: "Success", message: "User authenticated" });
+  } catch (error) {
+    res.status(500).json({ status: "Failed", message: error.message });
+  }
+};
+
+// Send Password reset otp
+exports.sendPasswordReset = async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res
+      .status(400)
+      .json({ status: "Failed", message: "Email is required" });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ status: "Failed", message: "User not found" });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    user.resetOtp = otp;
+    user.resetOtpExpireAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await user.save();
+
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: user.email,
+      subject: "Password Reset OTP",
+      html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; padding: 24px; border-radius: 8px; background-color: #ffffff; color: #333;">
+              <h2 style="text-align: center; color: #4CAF50;">Account Verification</h2>
+              
+              <p style="font-size: 16px;">Hi there,</p>
+              
+              <p style="font-size: 16px;">
+                Please use the verification code below to reset your account password. The code is valid for the next <strong>10 minutes</strong>.
+              </p>
+              
+              <div style="text-align: center; margin: 32px 0;">
+                <span style="display: inline-block; font-size: 32px; font-weight: bold; color: #ffffff; background-color: #4CAF50; padding: 12px 24px; border-radius: 8px; letter-spacing: 4px;">
+                  ${otp}
+                </span>
+              </div>
+              
+              <p style="font-size: 16px;">If you did not request this, please ignore this email.</p>
+              
+              <p style="font-size: 16px; margin-top: 40px;">Best regards,<br><strong>The MERN App Team</strong></p>
+            </div>
+            `,
+    };
+    await transporter.sendMail(mailOptions);
+
+    res
+      .status(200)
+      .json({ status: "Success", message: "OTP sent successfully" });
+  } catch (error) {
+    res.status(500).json({ status: "Failed", message: error.message });
+  }
+};
+
+// Reset password
+exports.resetPassword = async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  if (!email || !otp || !newPassword) {
+    return res
+      .status(400)
+      .json({ status: "Failed", message: "Please fill in all fields" });
+  }
+
+  try {
+    const user = await User.findOne({ email }).select(
+      "+resetOtp +resetOtpExpireAt"
+    );
+    if (!user) {
+      return res
+        .status(404)
+        .json({ status: "Failed", message: "User not found" });
+    }
+
+    if (user.resetOtp !== otp || user.resetOtp === "") {
+      return res.status(400).json({ status: "Failed", message: "Invalid OTP" });
+    }
+    if (user.resetOtpExpireAt < Date.now()) {
+      return res
+        .status(400)
+        .json({ status: "Failed", message: "OTP has expired" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+    user.resetOtp = "";
+    user.resetOtpExpireAt = null;
+    await user.save();
+
+    res
+      .status(200)
+      .json({ status: "Success", message: "Password reset successfully" });
+  } catch (error) {
+    res.status(500).json({ status: "Failed", message: error.message });
+  }
+};
