@@ -17,6 +17,7 @@ const ResetPassword = () => {
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [otp, setOtp] = useState("");
   const [isOtpSubmitted, setIsOtpSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInput = (e, index) => {
     if (e.target.value.length > 0 && index < inputRefs.current.length - 1) {
@@ -44,6 +45,7 @@ const ResetPassword = () => {
   const handleEmailSubmit = async (e) => {
     try {
       e.preventDefault();
+      setIsLoading(true);
 
       const response = await axios.post(`${backendUrl}/api/auth/sendResetOtp`, {
         email,
@@ -57,24 +59,31 @@ const ResetPassword = () => {
       }
     } catch (error) {
       toast.error(error.response.data.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleOtpSubmit = async (e) => {
     try {
       e.preventDefault();
+      setIsLoading(true);
+
       const otp = inputRefs.current.map((e) => e.value).join("");
 
       setOtp(otp);
       setIsOtpSubmitted(true);
     } catch (error) {
       toast.error(error.response.data.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleNewPasswordSubmit = async (e) => {
     try {
       e.preventDefault();
+      setIsLoading(true);
 
       const response = await axios.post(
         `${backendUrl}/api/auth/resetPassword`,
@@ -94,6 +103,8 @@ const ResetPassword = () => {
       }
     } catch (error) {
       toast.error(error.response.data.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -136,8 +147,13 @@ const ResetPassword = () => {
             />
           </div>
 
-          <button className="w-full py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-900 text-white font-medium cursor-pointer mt-3">
-            Send OTP
+          <button
+            disabled={isLoading}
+            className={`w-full py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-900 text-white font-medium mt-3 ${
+              isLoading ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+            }`}
+          >
+            {isLoading ? "Sending OTP..." : "Send OTP"}
           </button>
         </form>
       )}
@@ -171,8 +187,13 @@ const ResetPassword = () => {
                 />
               ))}
           </div>
-          <button className="w-full py-3 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full cursor-pointer">
-            Verify Email
+          <button
+            disabled={isLoading}
+            className={`w-full py-3 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full ${
+              isLoading ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+            }`}
+          >
+            {isLoading ? "Verifying..." : "Verify Email"}
           </button>
         </form>
       )}
@@ -209,8 +230,13 @@ const ResetPassword = () => {
             />
           </div>
 
-          <button className="w-full py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-900 text-white font-medium cursor-pointer mt-3">
-            Reset Password
+          <button
+            disabled={isLoading}
+            className={`w-full py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-900 text-white font-medium mt-3 ${
+              isLoading ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+            }`}
+          >
+            {isLoading ? "Resetting..." : "Reset Password"}
           </button>
         </form>
       )}

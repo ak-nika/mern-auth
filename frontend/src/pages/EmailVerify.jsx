@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { assets } from "../assets/assets";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -10,6 +10,7 @@ const EmailVerify = () => {
   const { backendUrl, isLoggedIn, userData, getUserData } =
     useContext(AppContext);
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleInput = (e, index) => {
     if (e.target.value.length > 0 && index < inputRefs.current.length - 1) {
@@ -37,6 +38,7 @@ const EmailVerify = () => {
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
+      setIsLoading(true);
       const otp = inputRefs.current.map((e) => e.value).join("");
 
       const response = await axios.post(
@@ -54,6 +56,8 @@ const EmailVerify = () => {
       }
     } catch (error) {
       toast.error(error.response.data.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -98,8 +102,13 @@ const EmailVerify = () => {
               />
             ))}
         </div>
-        <button className="w-full py-3 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full">
-          Verify Email
+        <button
+          disabled={isLoading}
+          className={`w-full py-3 bg-gradient-to-r from-indigo-500 to-indigo-900 text-white rounded-full ${
+            isLoading ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+          }`}
+        >
+          {isLoading ? "Verifying..." : "Verify Email"}
         </button>
       </form>
     </div>

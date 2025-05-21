@@ -11,6 +11,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const [authMode, setAuthMode] = useState("login");
+  const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,6 +19,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
+      setIsLoading(true);
 
       if (authMode === "signup") {
         const response = await axios.post(
@@ -57,6 +59,8 @@ const Login = () => {
       }
     } catch (error) {
       toast.error(error.response.data.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -149,8 +153,19 @@ const Login = () => {
             Forgot Password?
           </Link>
 
-          <button className="w-full py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-900 text-white font-medium cursor-pointer">
-            {authMode === "signup" ? "Sign Up" : "Login"}
+          <button
+            disabled={isLoading}
+            className={`w-full py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-900 text-white font-medium ${
+              isLoading ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+            }`}
+          >
+            {isLoading
+              ? authMode === "signup"
+                ? "Signing up..."
+                : "Logging in..."
+              : authMode === "signup"
+              ? "Sign Up"
+              : "Login"}
           </button>
 
           {authMode === "signup" ? (

@@ -1,10 +1,8 @@
 import React, { useContext } from "react";
 import { assets } from "../assets/assets";
-import { useNavigate } from "react-router-dom";
 import { AppContext } from "../contexts/AppContext";
 
 const Header = () => {
-  const navigate = useNavigate();
   const { userData } = useContext(AppContext);
 
   return (
@@ -31,10 +29,7 @@ const Header = () => {
         running in no time!
       </p>
 
-      <button
-        className="border border-gray-500 rounded-full px-8 py-2.5 cursor-pointer hover:bg-gray-100 transition duration-300"
-        onClick={() => navigate("/login")}
-      >
+      <button className="border border-gray-500 rounded-full px-8 py-2.5 cursor-pointer hover:bg-gray-100 transition duration-300">
         Get Started
       </button>
     </div>
