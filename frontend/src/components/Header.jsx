@@ -1,7 +1,10 @@
 import React from "react";
 import { assets } from "../assets/assets";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col items-center mt-20 px-4 text-center text-gray-800">
       <img
@@ -26,7 +29,10 @@ const Header = () => {
         running in no time!
       </p>
 
-      <button className="border border-gray-500 rounded-full px-8 py-2.5 cursor-pointer hover:bg-gray-100 transition duration-300">
+      <button
+        className="border border-gray-500 rounded-full px-8 py-2.5 cursor-pointer hover:bg-gray-100 transition duration-300"
+        onClick={() => navigate("/login")}
+      >
         Get Started
       </button>
     </div>
