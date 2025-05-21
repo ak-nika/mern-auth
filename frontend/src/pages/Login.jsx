@@ -6,7 +6,7 @@ import { AppContext } from "../contexts/AppContext";
 import { toast } from "react-toastify";
 
 const Login = () => {
-  const { backendUrl, setIsLoggedIn } = useContext(AppContext);
+  const { backendUrl, setIsLoggedIn, getUserData } = useContext(AppContext);
 
   const navigate = useNavigate();
 
@@ -32,6 +32,7 @@ const Login = () => {
 
         if (response.status === 201) {
           setIsLoggedIn(true);
+          getUserData();
           navigate("/");
         } else {
           toast.error(response.data.message);
@@ -48,6 +49,7 @@ const Login = () => {
 
         if (response.status >= 200 && response.status < 300) {
           setIsLoggedIn(true);
+          getUserData();
           navigate("/");
         } else {
           toast.error(response.data.message);

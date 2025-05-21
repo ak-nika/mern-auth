@@ -14,6 +14,6 @@ app.get("/", (req, res) => {
   res.send("MERN Application with Authentication");
 });
 app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
+app.use("/api/user", userRoutes);
 
 module.exports = app;

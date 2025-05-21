@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import { assets } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
+import { AppContext } from "../contexts/AppContext";
 
 const Header = () => {
   const navigate = useNavigate();
+  const { userData } = useContext(AppContext);
 
   return (
     <div className="flex flex-col items-center mt-20 px-4 text-center text-gray-800">
@@ -14,7 +16,7 @@ const Header = () => {
       />
 
       <h1 className="flex items-center gap-2 text-xl sm:text-3xl font-medium mb-2">
-        Hey {"Developer"}{" "}
+        Hey {userData ? userData.name : "Developer"}!{" "}
         <img
           src={assets.hand_wave}
           alt="Hand Wave"
